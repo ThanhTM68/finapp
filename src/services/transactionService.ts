@@ -1,5 +1,5 @@
 import { getDb } from '../db/client';
-import { Transaction, Wallet } from '../types';
+import { Budget, Category, Transaction, Wallet } from '../types';
 import { generateId, nowIso } from './utils';
 import { enqueueSyncItem } from './syncService';
 
@@ -220,6 +220,30 @@ export function getWallets(): Wallet[] {
   return rows.map(mapRowToWallet);
 }
 
+export function getCategories(): Category[] {
+  const db = getDb();
+  const rows = db.getAllSync<Record<string, unknown>>(
+    'SELECT * FROM categories WHERE is_deleted = 0 ORDER BY kind ASC, name ASC',
+  );
+  return rows.map(mapRowToCategory);
+}
+
+export function getBudgets(period?: string): Budget[] {
+  const db = getDb();
+  const params: string[] = [];
+  const where = period ? 'WHERE period = ?' : '';
+
+  if (period) {
+    params.push(period);
+  }
+
+  const rows = db.getAllSync<Record<string, unknown>>(
+    `SELECT * FROM budgets ${where} ORDER BY period DESC, created_at DESC`,
+    params,
+  );
+  return rows.map(mapRowToBudget);
+}
+
 function mapRowToWallet(row: Record<string, unknown>): Wallet {
   return {
     id: row.id as string,
@@ -232,5 +256,31 @@ function mapRowToWallet(row: Record<string, unknown>): Wallet {
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
     deletedAt: row.deleted_at as string | undefined,
+  };
+}
+
+function mapRowToCategory(row: Record<string, unknown>): Category {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    kind: row.kind as Category['kind'],
+    icon: row.icon as string,
+    color: row.color as string,
+    isDefault: (row.is_default as number) === 1,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+    deletedAt: row.deleted_at as string | undefined,
+  };
+}
+
+function mapRowToBudget(row: Record<string, unknown>): Budget {
+  return {
+    id: row.id as string,
+    categoryId: row.category_id as string,
+    amount: row.amount as number,
+    period: row.period as string,
+    spent: row.spent as number,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
   };
 }
