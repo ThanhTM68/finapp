@@ -1,0 +1,76 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "success": "Success"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "name": "Full name",
+    "resetPassword": "Reset password"
+  },
+  "wallet": {
+    "title": "My Wallets",
+    "create": "Create wallet",
+    "totalBalance": "Total balance",
+    "transfer": "Transfer",
+    "types": {
+      "cash": "Cash",
+      "bank": "Bank account",
+      "credit_card": "Credit card",
+      "savings": "Savings",
+      "e_wallet": "E-wallet"
+    }
+  },
+  "transaction": {
+    "title": "Transactions",
+    "create": "Add transaction",
+    "income": "Income",
+    "expense": "Expense",
+    "amount": "Amount",
+    "note": "Note",
+    "date": "Date",
+    "category": "Category",
+    "recurring": "Recurring transaction"
+  },
+  "budget": {
+    "title": "Budgets",
+    "create": "Create budget",
+    "limit": "Limit",
+    "spent": "Spent",
+    "remaining": "Remaining",
+    "overLimit": "Over limit",
+    "nearLimit": "Near limit"
+  },
+  "report": {
+    "title": "Reports",
+    "income": "Income",
+    "expense": "Expense",
+    "balance": "Balance",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year"
+  },
+  "account": {
+    "title": "Account",
+    "profile": "Profile",
+    "security": "Security",
+    "settings": "Settings",
+    "sync": "Sync",
+    "export": "Export data",
+    "darkMode": "Dark mode",
+    "hideBalance": "Hide balance",
+    "appLock": "App lock",
+    "deleteAccount": "Delete account"
+  }
+}

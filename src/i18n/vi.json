@@ -1,0 +1,76 @@
+{
+  "common": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "back": "Quay lại",
+    "confirm": "Xác nhận",
+    "loading": "Đang tải...",
+    "error": "Đã có lỗi xảy ra",
+    "success": "Thành công"
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "name": "Họ tên",
+    "resetPassword": "Đặt lại mật khẩu"
+  },
+  "wallet": {
+    "title": "Ví của tôi",
+    "create": "Tạo ví mới",
+    "totalBalance": "Tổng số dư",
+    "transfer": "Chuyển tiền",
+    "types": {
+      "cash": "Tiền mặt",
+      "bank": "Ngân hàng",
+      "credit_card": "Thẻ tín dụng",
+      "savings": "Tiết kiệm",
+      "e_wallet": "Ví điện tử"
+    }
+  },
+  "transaction": {
+    "title": "Giao dịch",
+    "create": "Thêm giao dịch",
+    "income": "Thu nhập",
+    "expense": "Chi tiêu",
+    "amount": "Số tiền",
+    "note": "Ghi chú",
+    "date": "Ngày",
+    "category": "Danh mục",
+    "recurring": "Giao dịch định kỳ"
+  },
+  "budget": {
+    "title": "Ngân sách",
+    "create": "Tạo ngân sách",
+    "limit": "Hạn mức",
+    "spent": "Đã chi",
+    "remaining": "Còn lại",
+    "overLimit": "Vượt hạn mức",
+    "nearLimit": "Gần đạt hạn mức"
+  },
+  "report": {
+    "title": "Báo cáo",
+    "income": "Thu nhập",
+    "expense": "Chi tiêu",
+    "balance": "Số dư",
+    "week": "Tuần",
+    "month": "Tháng",
+    "year": "Năm"
+  },
+  "account": {
+    "title": "Tài khoản",
+    "profile": "Hồ sơ",
+    "security": "Bảo mật",
+    "settings": "Cài đặt",
+    "sync": "Đồng bộ",
+    "export": "Xuất dữ liệu",
+    "darkMode": "Chế độ tối",
+    "hideBalance": "Ẩn số dư",
+    "appLock": "Khóa ứng dụng",
+    "deleteAccount": "Xóa tài khoản"
+  }
+}
