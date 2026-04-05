@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   ScrollView,
@@ -12,13 +12,13 @@ import { Typography } from '../../src/components/ui/Typography';
 import { Card } from '../../src/components/ui/Card';
 import { useWalletStore } from '../../src/stores/walletStore';
 import { useTransactionStore } from '../../src/stores/transactionStore';
+import { initializeStoresFromDb } from '../../src/services/dataInitService';
 import { formatCurrency } from '../../src/services/utils';
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
-  const [hideBalance, setHideBalance] = useState(false);
+  const [hideBalance] = useState(false);
 
-  const wallets = useWalletStore((s) => s.wallets);
   const totalBalance = useWalletStore((s) => s.totalBalance);
   const transactions = useTransactionStore((s) => s.transactions);
 
@@ -34,8 +34,11 @@ export default function HomeScreen() {
 
   async function onRefresh() {
     setRefreshing(true);
-    // TODO: load from local DB
-    setRefreshing(false);
+    try {
+      await initializeStoresFromDb();
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   return (
