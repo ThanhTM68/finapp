@@ -1,5 +1,5 @@
 import { transactionDao } from '../db/dao/transaction.dao';
-import { walletDao } from '../db/dao/wallet.dao';
+import { categoryDao } from '../db/dao/category.dao';
 import { ReportSummary, CategoryReport, TrendPoint, ReportPeriod } from '../../domain/report/report.types';
 
 export const reportRepository = {
@@ -31,17 +31,23 @@ export const reportRepository = {
       endDate: period.endDate,
     });
 
-    const map = new Map<string, number>();
+    const amountByCategory = new Map<string, number>();
     transactions.forEach((t) => {
-      map.set(t.categoryId, (map.get(t.categoryId) ?? 0) + t.amount);
+      amountByCategory.set(t.categoryId, (amountByCategory.get(t.categoryId) ?? 0) + t.amount);
     });
 
-    const total = [...map.values()].reduce((sum, v) => sum + v, 0);
-    return [...map.entries()].map(([categoryId, amount]) => ({
-      categoryId,
-      categoryName: categoryId,
-      amount,
-      percentage: total > 0 ? (amount / total) * 100 : 0,
-    }));
+    const total = [...amountByCategory.values()].reduce((sum, v) => sum + v, 0);
+
+    const reports: CategoryReport[] = [];
+    for (const [categoryId, amount] of amountByCategory.entries()) {
+      const category = await categoryDao.findById(categoryId);
+      reports.push({
+        categoryId,
+        categoryName: category?.name ?? categoryId,
+        amount,
+        percentage: total > 0 ? (amount / total) * 100 : 0,
+      });
+    }
+    return reports;
   },
 };

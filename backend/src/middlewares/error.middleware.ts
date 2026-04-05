@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/logger';
+import { config } from '../config/env';
 import { sendError } from '../utils/response';
 
 export function errorMiddleware(
@@ -8,6 +9,10 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction,
 ): void {
-  logger.error('Unhandled error', err.message, err.stack);
+  if (config.isDev) {
+    logger.error('Unhandled error', err.message, err.stack);
+  } else {
+    logger.error('Unhandled error', err.message);
+  }
   sendError(res, err.message || 'Internal server error', 500);
 }
