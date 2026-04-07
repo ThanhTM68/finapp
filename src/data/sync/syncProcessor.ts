@@ -20,8 +20,22 @@ async function applyChange(change: ServerChange): Promise<void> {
   if (change.operation === 'DELETE') {
     const id = String(payload.id ?? '');
     if (!id) return;
-    const table = change.tableName;
-    await db.runAsync(`DELETE FROM ${table} WHERE id = ?`, [id]);
+    switch (change.tableName) {
+      case 'wallets':
+        await db.runAsync('DELETE FROM wallets WHERE id = ?', [id]);
+        break;
+      case 'categories':
+        await db.runAsync('DELETE FROM categories WHERE id = ?', [id]);
+        break;
+      case 'transactions':
+        await db.runAsync('DELETE FROM transactions WHERE id = ?', [id]);
+        break;
+      case 'budgets':
+        await db.runAsync('DELETE FROM budgets WHERE id = ?', [id]);
+        break;
+      default:
+        break;
+    }
     return;
   }
 
@@ -174,7 +188,11 @@ export const syncProcessor = {
         await applyChange(change);
       }
 
-      const newest = changes[changes.length - 1]?.updatedAt;
+      const newest = changes.reduce<string | undefined>((latest, item) => {
+        if (!item.updatedAt) return latest;
+        if (!latest) return item.updatedAt;
+        return item.updatedAt > latest ? item.updatedAt : latest;
+      }, undefined);
       if (newest) {
         await secureStorage.setString(LAST_SYNC_KEY, newest);
       }

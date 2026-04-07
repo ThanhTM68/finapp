@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
+import { secureStorage } from '../../security/secureStore';
 
 let initialized = false;
+const BUDGET_NOTICE_PREFIX = 'budget_notice_';
 
 async function ensurePermissions(): Promise<void> {
   if (initialized) return;
@@ -12,7 +14,11 @@ async function ensurePermissions(): Promise<void> {
 }
 
 export const notificationService = {
-  async notifyBudgetNearLimit(budgetName: string, percentage: number): Promise<void> {
+  async notifyBudgetNearLimit(budgetId: string, budgetName: string, percentage: number): Promise<void> {
+    const key = `${BUDGET_NOTICE_PREFIX}${budgetId}`;
+    const noticeFlag = await secureStorage.getString(key);
+    if (noticeFlag === 'sent') return;
+
     await ensurePermissions();
     await Notifications.scheduleNotificationAsync({
       content: {
@@ -21,5 +27,6 @@ export const notificationService = {
       },
       trigger: null,
     });
+    await secureStorage.setString(key, 'sent');
   },
 };

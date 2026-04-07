@@ -66,7 +66,7 @@ export const transactionRepository = {
 
         const ratio = budget.amount > 0 ? nextSpent / budget.amount : 0;
         if (ratio >= 0.8) {
-          await notificationService.notifyBudgetNearLimit(budget.name, ratio * 100);
+          await notificationService.notifyBudgetNearLimit(budget.id, budget.name, ratio * 100);
         }
       }
     }

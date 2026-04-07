@@ -8,6 +8,8 @@ import { useWallets } from '@/hooks/useWallets';
 import { CategoryPicker } from '@/components/ui/CategoryPicker';
 import { TransactionType } from '@/domain/common/base.types';
 
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+
 function formatDateLabel(value: Date): string {
   return value.toISOString().slice(0, 10);
 }
@@ -80,11 +82,11 @@ export default function CreateTransactionScreen() {
         <View style={styles.fieldRow}>
           <Text style={styles.fieldLabel}>Ngày</Text>
           <View style={styles.dateActions}>
-            <TouchableOpacity style={styles.dateButton} onPress={() => setDate(new Date(date.getTime() - 86400000))}>
+            <TouchableOpacity style={styles.dateButton} onPress={() => setDate(new Date(date.getTime() - MILLISECONDS_PER_DAY))}>
               <Text style={styles.dateButtonText}>-1 ngày</Text>
             </TouchableOpacity>
             <Text style={styles.dateText}>{formatDateLabel(date)}</Text>
-            <TouchableOpacity style={styles.dateButton} onPress={() => setDate(new Date(date.getTime() + 86400000))}>
+            <TouchableOpacity style={styles.dateButton} onPress={() => setDate(new Date(date.getTime() + MILLISECONDS_PER_DAY))}>
               <Text style={styles.dateButtonText}>+1 ngày</Text>
             </TouchableOpacity>
           </View>

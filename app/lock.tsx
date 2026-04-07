@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { appLock } from '@/security/appLock';
+import { secureStorage } from '@/security/secureStore';
+
+const LAST_UNLOCK_AT_KEY = 'app_lock_last_unlock_at';
 
 export default function LockScreen() {
   const [pin, setPin] = useState('');
@@ -13,6 +16,7 @@ export default function LockScreen() {
       setError('PIN không đúng');
       return;
     }
+    await secureStorage.setString(LAST_UNLOCK_AT_KEY, Date.now().toString());
     router.replace('/(tabs)');
   };
 
@@ -22,6 +26,7 @@ export default function LockScreen() {
       setError('Không thể xác thực sinh trắc học');
       return;
     }
+    await secureStorage.setString(LAST_UNLOCK_AT_KEY, Date.now().toString());
     router.replace('/(tabs)');
   };
 

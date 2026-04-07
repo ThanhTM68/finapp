@@ -6,7 +6,11 @@ import { useEffect } from 'react';
 import { AppProvider } from '@/core/providers/AppProvider';
 import { useSettingsStore } from '@/store/settings.store';
 import { appLock } from '@/security/appLock';
+import { secureStorage } from '@/security/secureStore';
 import { router } from 'expo-router';
+
+const LAST_UNLOCK_AT_KEY = 'app_lock_last_unlock_at';
+const UNLOCK_GRACE_MS = 30_000;
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -17,7 +21,10 @@ export default function RootLayout() {
       if (state !== 'active' || !isAppLockEnabled) return;
       void (async () => {
         const hasPin = await appLock.hasPin();
-        if (hasPin) {
+        const raw = await secureStorage.getString(LAST_UNLOCK_AT_KEY);
+        const lastUnlockAt = raw ? Number(raw) : 0;
+        const canLock = Date.now() - lastUnlockAt > UNLOCK_GRACE_MS;
+        if (hasPin && canLock) {
           router.replace('/lock');
         }
       })();

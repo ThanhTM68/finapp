@@ -51,7 +51,13 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  if (response.status === 401 && !retried && !path.startsWith('/auth/')) {
+  if (
+    response.status === 401 &&
+    !retried &&
+    path !== '/auth/refresh' &&
+    path !== '/auth/login' &&
+    path !== '/auth/register'
+  ) {
     const nextToken = await refreshAccessToken();
     if (nextToken) {
       return request<T>(path, { ...options, retried: true });

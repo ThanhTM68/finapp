@@ -58,8 +58,8 @@ export const walletController = {
   async transfer(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as AuthenticatedRequest).user!.id;
-      const { fromId, toId, amount, note } = req.body as { fromId: string; toId: string; amount: number; note?: string };
-      await walletService.transfer(userId, fromId, toId, amount, note);
+      const { fromId, toId, amount } = req.body as { fromId: string; toId: string; amount: number };
+      await walletService.transfer(userId, fromId, toId, amount);
       sendSuccess(res, null, 'Chuyển tiền thành công');
     } catch (err) {
       sendError(res, (err as Error).message);

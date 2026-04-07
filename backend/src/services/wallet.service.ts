@@ -1,6 +1,6 @@
 import { Wallet, WalletType } from '../models/wallet.model';
 import { generateId } from '../utils/response';
-import { query, queryOne } from '../db/client';
+import { pool, query, queryOne } from '../db/client';
 import { recordSyncEvent } from './sync.service';
 
 interface WalletRow {
@@ -87,14 +87,25 @@ export const walletService = {
     await recordSyncEvent(userId, 'wallets', 'DELETE', { id });
   },
 
-  async transfer(userId: string, fromId: string, toId: string, amount: number, _note?: string): Promise<void> {
+  async transfer(userId: string, fromId: string, toId: string, amount: number): Promise<void> {
     const from = await walletService.getById(fromId, userId);
     const to = await walletService.getById(toId, userId);
     if (!from || !to) throw new Error('Ví không tồn tại');
     if (from.balance < amount) throw new Error('Số dư không đủ');
 
-    await query('UPDATE wallets SET balance = balance - $1, updated_at = NOW() WHERE id = $2', [amount, fromId]);
-    await query('UPDATE wallets SET balance = balance + $1, updated_at = NOW() WHERE id = $2', [amount, toId]);
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('UPDATE wallets SET balance = balance - $1, updated_at = NOW() WHERE id = $2', [amount, fromId]);
+      await client.query('UPDATE wallets SET balance = balance + $1, updated_at = NOW() WHERE id = $2', [amount, toId]);
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+
     await recordSyncEvent(userId, 'wallets', 'UPDATE', { id: fromId });
     await recordSyncEvent(userId, 'wallets', 'UPDATE', { id: toId });
   },

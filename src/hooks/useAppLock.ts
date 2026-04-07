@@ -30,8 +30,11 @@ export function useAppLock() {
       return;
     }
 
+    let previousState: AppStateStatus = AppState.currentState;
     const onAppStateChange = (state: AppStateStatus) => {
-      if (state === 'active') {
+      const cameFromBackground = previousState.match(/inactive|background/) && state === 'active';
+      previousState = state;
+      if (cameFromBackground) {
         setIsLocked(true);
       }
     };
