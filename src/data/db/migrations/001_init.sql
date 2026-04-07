@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   date TEXT NOT NULL,
   is_recurring INTEGER NOT NULL DEFAULT 0,
   recurring_interval TEXT,
+  transfer_id TEXT,
   sync_status TEXT NOT NULL DEFAULT 'pending',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),

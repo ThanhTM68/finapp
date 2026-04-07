@@ -5,5 +5,5 @@ export interface BaseEntity {
 }
 
 export type SyncStatus = 'pending' | 'synced' | 'failed';
-export type TransactionType = 'income' | 'expense';
+export type TransactionType = 'income' | 'expense' | 'transfer';
 export type WalletType = 'cash' | 'bank' | 'credit_card' | 'savings' | 'e_wallet';

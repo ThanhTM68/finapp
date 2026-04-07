@@ -41,12 +41,13 @@ export const transactionDao = {
     const db = await getDatabase();
     await db.runAsync(
       `INSERT INTO transactions
-       (id, wallet_id, category_id, amount, type, note, date, is_recurring, recurring_interval, sync_status, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+       (id, wallet_id, category_id, amount, type, note, date, is_recurring, recurring_interval, transfer_id, sync_status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
       [
         tx.id, tx.walletId, tx.categoryId, tx.amount, tx.type,
         tx.note, tx.date, tx.isRecurring ? 1 : 0,
-        tx.recurringInterval ?? null, tx.createdAt, tx.updatedAt,
+        tx.recurringInterval ?? null, tx.transferId ?? null,
+        tx.createdAt, tx.updatedAt,
       ],
     );
   },

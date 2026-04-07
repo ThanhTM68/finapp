@@ -9,6 +9,8 @@ export interface Transaction extends BaseEntity {
   date: string;
   isRecurring: boolean;
   recurringInterval?: 'daily' | 'weekly' | 'monthly';
+  /** Links the two legs of a transfer (same value on both debit and credit rows). */
+  transferId?: string;
   syncStatus: SyncStatus;
 }
 
@@ -21,6 +23,7 @@ export interface CreateTransactionPayload {
   date: string;
   isRecurring?: boolean;
   recurringInterval?: Transaction['recurringInterval'];
+  transferId?: string;
 }
 
 export interface TransactionFilter {
