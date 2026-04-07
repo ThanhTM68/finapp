@@ -1,15 +1,43 @@
 import { getDatabase } from '../sqlite';
 import { Category } from '../../../domain/category/category.types';
 
+interface CategoryRow {
+  id: string;
+  name: string;
+  type: Category['type'];
+  icon: string;
+  color: string;
+  is_default: number;
+  sync_status: Category['syncStatus'];
+  created_at: string;
+  updated_at: string;
+}
+
+function mapCategory(row: CategoryRow): Category {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    icon: row.icon,
+    color: row.color,
+    isDefault: row.is_default === 1,
+    syncStatus: row.sync_status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 export const categoryDao = {
   async findAll(): Promise<Category[]> {
     const db = await getDatabase();
-    return db.getAllAsync<Category>('SELECT * FROM categories ORDER BY is_default DESC, name ASC');
+    const rows = await db.getAllAsync<CategoryRow>('SELECT * FROM categories ORDER BY is_default DESC, name ASC');
+    return rows.map(mapCategory);
   },
 
   async findById(id: string): Promise<Category | null> {
     const db = await getDatabase();
-    return db.getFirstAsync<Category>('SELECT * FROM categories WHERE id = ?', [id]);
+    const row = await db.getFirstAsync<CategoryRow>('SELECT * FROM categories WHERE id = ?', [id]);
+    return row ? mapCategory(row) : null;
   },
 
   async isUsedInTransaction(id: string): Promise<boolean> {

@@ -7,6 +7,7 @@ export const authRoutes = Router();
 
 authRoutes.post('/register', authRateLimitMiddleware, authController.register);
 authRoutes.post('/login', authRateLimitMiddleware, authController.login);
+authRoutes.post('/refresh', authRateLimitMiddleware, authController.refresh);
 authRoutes.post('/logout', authMiddleware, authController.logout);
 authRoutes.post('/reset-password', authRateLimitMiddleware, authController.resetPassword);
 authRoutes.get('/profile', authMiddleware, authController.getProfile);

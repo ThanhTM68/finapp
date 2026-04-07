@@ -1,38 +1,61 @@
 import { Budget } from '../models/budget.model';
 import { generateId } from '../utils/response';
+import { query, queryOne } from '../db/client';
+import { recordSyncEvent } from './sync.service';
 
-// In-memory store placeholder
-const budgets: Budget[] = [];
+interface BudgetRow {
+  id: string;
+  user_id: string;
+  name: string;
+  category_id: string | null;
+  amount: number;
+  spent: number;
+  start_date: Date;
+  end_date: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+function mapBudget(row: BudgetRow): Budget {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    name: row.name,
+    categoryId: row.category_id ?? undefined,
+    amount: row.amount,
+    spent: row.spent,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
 
 export const budgetService = {
   async getAll(userId: string): Promise<Budget[]> {
-    return budgets.filter((b) => b.userId === userId);
+    const rows = await query<BudgetRow>('SELECT * FROM budgets WHERE user_id = $1 ORDER BY start_date DESC', [userId]);
+    return rows.map(mapBudget);
   },
 
   async create(userId: string, payload: {
     name: string; categoryId?: string;
     amount: number; startDate: string; endDate: string;
   }): Promise<Budget> {
-    const now = new Date();
-    const budget: Budget = {
-      id: generateId(),
-      userId,
-      name: payload.name,
-      categoryId: payload.categoryId,
-      amount: payload.amount,
-      spent: 0,
-      startDate: new Date(payload.startDate),
-      endDate: new Date(payload.endDate),
-      createdAt: now,
-      updatedAt: now,
-    };
-    budgets.push(budget);
+    const row = await queryOne<BudgetRow>(
+      `INSERT INTO budgets (id, user_id, name, category_id, amount, spent, start_date, end_date)
+       VALUES ($1, $2, $3, $4, $5, 0, $6, $7)
+       RETURNING *`,
+      [generateId(), userId, payload.name, payload.categoryId ?? null, payload.amount, payload.startDate, payload.endDate],
+    );
+    if (!row) throw new Error('Không thể tạo ngân sách');
+    const budget = mapBudget(row);
+    await recordSyncEvent(userId, 'budgets', 'INSERT', budget as unknown as Record<string, unknown>);
     return budget;
   },
 
   async delete(id: string, userId: string): Promise<void> {
-    const index = budgets.findIndex((b) => b.id === id && b.userId === userId);
-    if (index < 0) throw new Error('Không tìm thấy ngân sách');
-    budgets.splice(index, 1);
+    const row = await queryOne<{ id: string }>('DELETE FROM budgets WHERE id = $1 AND user_id = $2 RETURNING id', [id, userId]);
+    if (!row) throw new Error('Không tìm thấy ngân sách');
+    await recordSyncEvent(userId, 'budgets', 'DELETE', { id });
   },
 };

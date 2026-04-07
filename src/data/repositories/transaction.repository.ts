@@ -1,8 +1,10 @@
 import { transactionDao } from '../db/dao/transaction.dao';
 import { walletDao } from '../db/dao/wallet.dao';
 import { syncQueueDao } from '../db/dao/sync_queue.dao';
+import { budgetDao } from '../db/dao/budget.dao';
 import { Transaction, CreateTransactionPayload, TransactionFilter } from '../../domain/transaction/transaction.types';
 import { generateId } from '../../utils/id';
+import { notificationService } from '../../services/notifications/notification.service';
 
 export const transactionRepository = {
   async getAll(filter?: TransactionFilter): Promise<Transaction[]> {
@@ -48,6 +50,26 @@ export const transactionRepository = {
 
     // 3. Enqueue sync
     await syncQueueDao.enqueue('transactions', 'INSERT', tx);
+
+    // 4. Update budgets and trigger >80% notification for expenses
+    if (payload.type === 'expense') {
+      const budgets = await budgetDao.findAll();
+      const txDate = new Date(payload.date);
+      for (const budget of budgets) {
+        const inRange = txDate >= new Date(budget.startDate) && txDate <= new Date(budget.endDate);
+        const matchCategory = !budget.categoryId || budget.categoryId === payload.categoryId;
+        if (!inRange || !matchCategory) continue;
+
+        const nextSpent = budget.spent + payload.amount;
+        await budgetDao.updateSpent(budget.id, nextSpent);
+        await syncQueueDao.enqueue('budgets', 'UPDATE', { id: budget.id, spent: nextSpent });
+
+        const ratio = budget.amount > 0 ? nextSpent / budget.amount : 0;
+        if (ratio >= 0.8) {
+          await notificationService.notifyBudgetNearLimit(budget.name, ratio * 100);
+        }
+      }
+    }
 
     return tx;
   },

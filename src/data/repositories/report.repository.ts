@@ -30,9 +30,10 @@ export const reportRepository = {
       startDate: period.startDate,
       endDate: period.endDate,
     });
+    const expenseTransactions = transactions.filter((t) => t.type === 'expense');
 
     const amountByCategory = new Map<string, number>();
-    transactions.forEach((t) => {
+    expenseTransactions.forEach((t) => {
       amountByCategory.set(t.categoryId, (amountByCategory.get(t.categoryId) ?? 0) + t.amount);
     });
 
@@ -46,8 +47,30 @@ export const reportRepository = {
         categoryName: category?.name ?? categoryId,
         amount,
         percentage: total > 0 ? (amount / total) * 100 : 0,
+        color: category?.color,
       });
     }
-    return reports;
+    return reports.sort((a, b) => b.amount - a.amount);
+  },
+
+  async getTrend(period: ReportPeriod): Promise<TrendPoint[]> {
+    const transactions = await transactionDao.findAll({
+      startDate: period.startDate,
+      endDate: period.endDate,
+    });
+
+    const grouped = new Map<string, TrendPoint>();
+    for (const tx of transactions) {
+      const date = tx.date.slice(0, 10);
+      const current = grouped.get(date) ?? { date, income: 0, expense: 0 };
+      if (tx.type === 'income') {
+        current.income += tx.amount;
+      } else if (tx.type === 'expense') {
+        current.expense += tx.amount;
+      }
+      grouped.set(date, current);
+    }
+
+    return [...grouped.values()].sort((a, b) => a.date.localeCompare(b.date));
   },
 };

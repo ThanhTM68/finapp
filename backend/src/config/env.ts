@@ -11,7 +11,7 @@ export const config = {
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN ?? '7d',
   },
   database: {
-    url: process.env.DATABASE_URL ?? 'mongodb://localhost:27017/fincoin',
+    url: process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/fincoin',
   },
   bcrypt: {
     rounds: parseInt(process.env.BCRYPT_ROUNDS ?? '12', 10),

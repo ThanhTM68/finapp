@@ -1,5 +1,6 @@
 import { httpClient } from './httpClient';
 import { LoginPayload, RegisterPayload, AuthTokens, User } from '../../domain/auth/auth.types';
+import { secureStorage } from '../../security/secureStore';
 
 export const authApi = {
   login: (payload: LoginPayload) =>
@@ -8,7 +9,10 @@ export const authApi = {
   register: (payload: RegisterPayload) =>
     httpClient.post<{ tokens: AuthTokens; user: User }>('/auth/register', payload),
 
-  logout: () => httpClient.post<void>('/auth/logout', {}),
+  logout: async () => {
+    const refreshToken = await secureStorage.getRefreshToken();
+    return httpClient.post<void>('/auth/logout', { refreshToken });
+  },
 
   refreshToken: (refreshToken: string) =>
     httpClient.post<AuthTokens>('/auth/refresh', { refreshToken }),

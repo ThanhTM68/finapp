@@ -2,12 +2,12 @@ import { httpClient } from './httpClient';
 import { SyncQueueItem } from '../db/dao/sync_queue.dao';
 
 export interface SyncBatchPayload {
-  items: Pick<SyncQueueItem, 'tableName' | 'operation' | 'payload'>[];
+  items: Pick<SyncQueueItem, 'id' | 'tableName' | 'operation' | 'payload'>[];
   lastSyncAt?: string;
 }
 
 export interface SyncBatchResponse {
-  serverChanges: object[];
+  changes: object[];
   syncedIds: number[];
 }
 

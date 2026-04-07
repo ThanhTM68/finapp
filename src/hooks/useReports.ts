@@ -5,7 +5,7 @@ import { useReportStore } from '../store/report.store';
 import { ReportPeriod } from '../domain/report/report.types';
 
 export function useReports(period: ReportPeriod) {
-  const { setSummary, setCategoryBreakdown } = useReportStore();
+  const { setSummary, setCategoryBreakdown, setTrend } = useReportStore();
 
   const summaryQuery = useQuery({
     queryKey: ['report-summary', period],
@@ -17,6 +17,11 @@ export function useReports(period: ReportPeriod) {
     queryFn: () => reportService.getCategoryBreakdown(period),
   });
 
+  const trendQuery = useQuery({
+    queryKey: ['report-trend', period],
+    queryFn: () => reportService.getTrend(period),
+  });
+
   useEffect(() => {
     if (summaryQuery.data) setSummary(summaryQuery.data);
   }, [summaryQuery.data, setSummary]);
@@ -25,9 +30,14 @@ export function useReports(period: ReportPeriod) {
     if (breakdownQuery.data) setCategoryBreakdown(breakdownQuery.data);
   }, [breakdownQuery.data, setCategoryBreakdown]);
 
+  useEffect(() => {
+    if (trendQuery.data) setTrend(trendQuery.data);
+  }, [trendQuery.data, setTrend]);
+
   return {
     summary: summaryQuery.data,
     breakdown: breakdownQuery.data ?? [],
-    isLoading: summaryQuery.isLoading || breakdownQuery.isLoading,
+    trend: trendQuery.data ?? [],
+    isLoading: summaryQuery.isLoading || breakdownQuery.isLoading || trendQuery.isLoading,
   };
 }

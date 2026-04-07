@@ -1,6 +1,40 @@
 import { getDatabase } from '../sqlite';
 import { Transaction, TransactionFilter } from '../../../domain/transaction/transaction.types';
 
+interface TransactionRow {
+  id: string;
+  wallet_id: string;
+  category_id: string;
+  amount: number;
+  type: Transaction['type'];
+  note: string;
+  date: string;
+  is_recurring: number;
+  recurring_interval: Transaction['recurringInterval'] | null;
+  transfer_id: string | null;
+  sync_status: Transaction['syncStatus'];
+  created_at: string;
+  updated_at: string;
+}
+
+function mapTransaction(row: TransactionRow): Transaction {
+  return {
+    id: row.id,
+    walletId: row.wallet_id,
+    categoryId: row.category_id,
+    amount: row.amount,
+    type: row.type,
+    note: row.note,
+    date: row.date,
+    isRecurring: row.is_recurring === 1,
+    recurringInterval: row.recurring_interval ?? undefined,
+    transferId: row.transfer_id ?? undefined,
+    syncStatus: row.sync_status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 export const transactionDao = {
   async findAll(filter?: TransactionFilter): Promise<Transaction[]> {
     const db = await getDatabase();
@@ -29,12 +63,14 @@ export const transactionDao = {
     }
 
     sql += ' ORDER BY date DESC';
-    return db.getAllAsync<Transaction>(sql, params);
+    const rows = await db.getAllAsync<TransactionRow>(sql, params);
+    return rows.map(mapTransaction);
   },
 
   async findById(id: string): Promise<Transaction | null> {
     const db = await getDatabase();
-    return db.getFirstAsync<Transaction>('SELECT * FROM transactions WHERE id = ?', [id]);
+    const row = await db.getFirstAsync<TransactionRow>('SELECT * FROM transactions WHERE id = ?', [id]);
+    return row ? mapTransaction(row) : null;
   },
 
   async insert(tx: Transaction): Promise<void> {

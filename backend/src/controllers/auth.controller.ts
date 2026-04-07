@@ -24,7 +24,19 @@ export const authController = {
   },
 
   async logout(req: Request, res: Response): Promise<void> {
+    const { refreshToken } = req.body as { refreshToken?: string };
+    await authService.logout(refreshToken);
     sendSuccess(res, null, 'Đã đăng xuất');
+  },
+
+  async refresh(req: Request, res: Response): Promise<void> {
+    try {
+      const { refreshToken } = req.body as { refreshToken: string };
+      const tokens = await authService.refresh(refreshToken);
+      sendSuccess(res, tokens, 'Làm mới token thành công');
+    } catch (err) {
+      sendError(res, (err as Error).message, 401);
+    }
   },
 
   async getProfile(req: Request, res: Response): Promise<void> {

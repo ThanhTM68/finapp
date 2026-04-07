@@ -1,7 +1,12 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { router } from 'expo-router';
+import { useSettingsStore } from '@/store/settings.store';
+import { settingsService } from '@/services/settings/settings.service';
 
 export default function AccountScreen() {
+  const isAppLockEnabled = useSettingsStore((state) => state.isAppLockEnabled);
+  const setAppLockEnabled = useSettingsStore((state) => state.setAppLockEnabled);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileCard}>
@@ -31,8 +36,15 @@ export default function AccountScreen() {
         <TouchableOpacity style={styles.item} onPress={() => router.push('/(tabs)/account/security')}>
           <Text style={styles.itemText}>Đổi mật khẩu</Text>
         </TouchableOpacity>
-        <View style={styles.item}>
+        <View style={[styles.item, styles.itemRow]}>
           <Text style={styles.itemText}>Khóa ứng dụng</Text>
+          <Switch
+            value={isAppLockEnabled}
+            onValueChange={(value) => {
+              setAppLockEnabled(value);
+              void settingsService.save({ isAppLockEnabled: value });
+            }}
+          />
         </View>
       </View>
 
@@ -75,6 +87,7 @@ const styles = StyleSheet.create({
   section: { backgroundColor: '#fff', margin: 16, borderRadius: 12, overflow: 'hidden' },
   sectionTitle: { fontSize: 12, fontWeight: '600', color: '#6b7280', padding: 12, paddingBottom: 4, textTransform: 'uppercase' },
   item: { paddingHorizontal: 16, paddingVertical: 14, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
+  itemRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   itemText: { fontSize: 16, color: '#111827' },
   logoutBtn: {
     margin: 16, backgroundColor: '#16a34a', padding: 16, borderRadius: 12, alignItems: 'center', marginBottom: 32,
